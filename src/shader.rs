@@ -96,6 +96,21 @@
                     camera.get_proj_view_mat().as_slice()
                 );
 
+                gl.uniform_matrix_4_f32_slice(
+                    gl.get_uniform_location(self.program, "u_InvViewProj").as_ref(),
+                    false, 
+                    camera.get_proj_view_mat().try_inverse().unwrap().as_slice()
+                );
+
+                gl.uniform_1_f32(
+                    gl.get_uniform_location(self.program, "aspectRatio").as_ref(),
+                    camera.aspect_ratio);
+
+                gl.uniform_3_f32(
+                    gl.get_uniform_location(self.program, "u_CamPos").as_ref(), 
+                    camera.pos.x, camera.pos.y, camera.pos.z
+                );
+
                 gl.bind_vertex_array(Some(mesh.vertex_array));
                 gl.draw_elements(if mesh.wireframe {glow::LINES} else {glow::TRIANGLES}, mesh.index_buffer_size as i32, glow::UNSIGNED_INT, 0);
             }

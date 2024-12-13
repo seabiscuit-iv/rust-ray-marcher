@@ -9,8 +9,8 @@ use eframe::{egui, egui_glow, glow::{self, HasContext, RIGHT}};
 use egui::{mutex, Margin, Style};
 use nalgebra::{Vector2, Vector3};
 
-mod Shader;
-use Shader::ShaderProgram;
+mod shader;
+use shader::ShaderProgram;
 
 mod mesh;
 
@@ -54,67 +54,12 @@ impl eframe::App for App {
                 }, 
                 ..egui::Frame::default()
             })
-            .show(ctx, |ui| {
-                if ui.button("Open File").clicked() {
-                    if let Some(path) = rfd::FileDialog::new().pick_file() {
-                        let mut load_options = tobj::LoadOptions::default();
-                        load_options.triangulate = true;
-                        load_options.ignore_lines = true;
-                        load_options.ignore_points = true;
-                        load_options.single_index = true;
-
-                        let mesh_obj = tobj::load_obj(path, &load_options);
-                        assert!(mesh_obj.is_ok());
-                
-                        let (mesh_objs, _) = mesh_obj.expect("FAILED TO LOAD OBJ");
-                        let mesh_obj = mesh_objs[0].clone();
-                
-                        let positions = mesh_obj.mesh.positions.chunks_exact(3).into_iter().map(|chunk| {
-                            Vector3::new(chunk[0], chunk[1], chunk[2])
-                        }).collect::<Vec<Vector3<f32>>>();
-                
-                        let indicies = mesh_obj.mesh.indices.chunks_exact(3).map(|c| {
-                            [c[0], c[1], c[2]]
-                        }).flatten().collect::<Vec<u32>>();
-
-                        let texcoords = mesh_obj.mesh.texcoords.chunks_exact(2).map(|x| {
-                            Vector2::new(x[0], x[1])
-                        }).collect::<Vec<Vector2<f32>>>();
-                
-                        let uvs = mesh_obj.mesh.texcoord_indices.iter().map(|x| {
-                            texcoords[*x as usize]
-                        }).collect::<Vec<Vector2<f32>>>();
-                
-                        let mesh = Mesh::new(&_frame.gl().unwrap(), 
-                            indicies.iter().map(|i| {positions[*i as usize]}).collect::<Vec<Vector3<f32>>>(), 
-                            (0..indicies.len()).map(|x| {x as u32}).collect(),
-                            texcoords,
-                            false
-                        );
-
-                        *self.mesh.lock().unwrap() = mesh;
-                        println!("New Mesh with {} verts", self.mesh.lock().unwrap().positions.len());
-                    }
-                }
-            });
+            .show(ctx, |_| ());
 
         egui::CentralPanel::default().show(ctx, |ui| {
             egui::Frame::canvas(ui.style()).show(ui, |ui| {
                 self.custom_painting(ui);
-                
             });
-            ui.label(format!("Verts: {}", self.mesh.lock().unwrap().positions.len()));
-            ui.label(format!("Tris: {}", self.mesh.lock().unwrap().indicies.len()/3));
-
-            ui.add_space(12.0);
-
-            ui.collapsing("Visual Properties", |ui| {
-                if ui.toggle_value(&mut self.mesh.lock().unwrap().wireframe, "Wireframe").clicked() {    
-                    self.mesh.lock().unwrap().load_buffers(&_frame.gl().unwrap());
-                }
-            });
-
-            ui.add_space(12.0);
 
             ui.collapsing("Camera Controls", |ui| {
                 ui.label("Position");
@@ -200,9 +145,14 @@ impl App {
             .expect("You need to run eframe with the glow backend");
 
         let mesh = Mesh::new(&gl, 
-            [].to_vec(), 
-        [0].to_vec(),
-            [].to_vec(),
+            [
+                Vector3::new(-1.0, -1.0, 0.0), 
+                Vector3::new(-1.0, 1.0, 0.0),
+                Vector3::new(1.0, -1.0, 0.0),
+                Vector3::new(1.0, 1.0, 0.0)
+            ].to_vec(), 
+        [0, 1, 2, 1, 2, 3].to_vec(),
+            (0..6).map(|_| Vector2::new(0.0, 0.0)).collect::<Vec<Vector2<f32>>>().to_vec(),
             false
         );
 
