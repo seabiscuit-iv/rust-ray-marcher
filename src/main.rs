@@ -42,7 +42,8 @@ struct App {
     shader_program: Arc<Mutex<ShaderProgram>>,
     value: f32,
     angle: (f32, f32, f32),
-    speed: f32
+    speed: f32,
+    sphere_pos: Vector3<f32>
 }
 
 impl eframe::App for App {
@@ -78,6 +79,13 @@ impl eframe::App for App {
                 ui.horizontal(|ui| {
                     ui.add(egui::Slider::new(&mut self.speed, RangeInclusive::new(0.0, 20.0)));
                 });
+            });
+
+            ui.label("Sphere Position");
+            ui.horizontal(|ui| {
+                ui.add(egui::DragValue::new(&mut self.sphere_pos.x));
+                ui.add(egui::DragValue::new(&mut self.sphere_pos.y));
+                ui.add(egui::DragValue::new(&mut self.sphere_pos.z));
             });
         });
 
@@ -166,7 +174,8 @@ impl App {
             camera: Arc::new(Mutex::new(camera)),
             value: 0.0,
             angle: (0.0, 0.0, 0.0),
-            speed: 10.0
+            speed: 1.0,
+            sphere_pos: Vector3::new(0.0, 0.0, 0.0)
         }
     }
 
@@ -186,10 +195,18 @@ impl App {
 
         let value = self.value;
 
+        let sphere_pos = self.sphere_pos;
+
         let callback = egui::PaintCallback {
             rect,
             callback: std::sync::Arc::new(egui_glow::CallbackFn::new(move |_info, painter| {
-                shader_program.lock().unwrap().paint(painter.gl(), &mesh.lock().unwrap(), &camera.lock().unwrap());
+                shader_program.lock().unwrap().paint(painter.gl(), &mesh.lock().unwrap(), &camera.lock().unwrap(), |gl, program| {
+                    unsafe {
+                        gl.uniform_3_f32(
+                            gl.get_uniform_location(program, "u_SpherePos").as_ref(), sphere_pos.x, sphere_pos.y, sphere_pos.z
+                        );
+                    }
+                });
             })),
         };
         ui.painter().add(callback);

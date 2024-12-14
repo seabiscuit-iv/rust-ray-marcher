@@ -1,5 +1,5 @@
 // pub mod Shader {
-    use eframe::glow::{self, HasContext};
+    use eframe::glow::{self, Context, HasContext, Shader};
     use egui::Vec2;
     use nalgebra::{Vector2, Vector3, Vector4};
     use rand;
@@ -79,7 +79,8 @@
             }
         }
 
-        pub fn paint(&self, gl: &glow::Context, mesh: &Mesh, camera: &Camera) {
+        pub fn paint<F: FnOnce(&Context, glow::Program)>(&self, gl: &glow::Context, mesh: &Mesh, camera: &Camera, set_uniforms: F) 
+        {
             use glow::HasContext as _;
 
             unsafe {
@@ -110,6 +111,8 @@
                     gl.get_uniform_location(self.program, "u_CamPos").as_ref(), 
                     camera.pos.x, camera.pos.y, camera.pos.z
                 );
+
+                set_uniforms(gl, self.program);
 
                 gl.bind_vertex_array(Some(mesh.vertex_array));
                 gl.draw_elements(if mesh.wireframe {glow::LINES} else {glow::TRIANGLES}, mesh.index_buffer_size as i32, glow::UNSIGNED_INT, 0);
