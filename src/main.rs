@@ -200,7 +200,7 @@ impl App {
         let value = self.value;
 
         let sphere_pos = self.sphere_pos;
-        let time = self.start_time.elapsed().as_secs_f32() / 4.0 + 6.0;
+        let time = self.start_time.elapsed().as_secs_f32() / 4.00 + 0.0;
 
         let callback = egui::PaintCallback {
             rect,

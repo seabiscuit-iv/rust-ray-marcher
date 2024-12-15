@@ -57,37 +57,31 @@ vec3 cart2polar(vec3 cart) {
 }
 
 
-float mandelbulb(vec3 c) {
-    int iterations = 20;
-    // float power = 8.0;
-    float power = u_Time;
+float mandelbulb(vec3 pos) {
+    float power = 2 * sin(u_Time) + 7.0;
+    vec3 z = pos;
     float dr = 1.0;
     float r = 0.0;
 
-    vec3 w = c;
-   
-    for(int i = 0; i < iterations; i++) {
-        r = length(w);
-        if (r > 2.0) break;
+    for (int i = 0; i < 8; i++) {
+        r = length(z);
+        if (r > 100.0) break;
 
-        float wr = sqrt(dot(w,w));
-        float wo = acos(w.y/wr);
-        float wi = atan(w.x,w.z);
-
+        // Convert to polar coordinates
+        float theta = acos(z.z / r);
+        float phi = atan(z.y, z.x);
         dr = pow(r, power - 1.0) * power * dr + 1.0;
 
-        wr = pow( wr, 8.0 );
-        wo = wo * 8.0;
-        wi = wi * 8.0;
+        // Scale and rotate
+        float zr = pow(r, power);
+        theta *= power;
+        phi *= power;
 
-        w.x = wr * sin(wo)*sin(wi);
-        w.y = wr * cos(wo);
-        w.z = wr * sin(wo)*cos(wi);
-
-        w += c;
+        // Convert back to cartesian coordinates
+        z = zr * vec3(sin(theta) * cos(phi), sin(theta) * sin(phi), cos(theta));
+        z += pos;
     }
-
-    return 0.5 * log(r) * r / dr; // Distance estimation formula
+    return 0.5 * log(r) * r / dr;
 }
 
 
@@ -186,13 +180,13 @@ void main() {
         //max(0.3, 1-(t/10.0))*
         // float lightVal = dot(getNormal(hitPos), normalize(vec3(0, -1, -1)));
         // frag_color = (max(0.5+lightVal/2, 0.6))*(fiveColorGradient(value / 1.0));
-        frag_color = vec4(getNormal(hitPos), 0.0);
-        // vec3 normal = (getNormal(hitPos) + 1) * 0.5;
+        // frag_color = vec4(getNormal(hitPos), 0.0);
+        vec3 normal = (getNormal(hitPos) + 1) * 0.5;
 
         // vec3 first = vec3(0.66, 0.87, 0.886) * 2;
         // vec3 second = vec3(0.815, 0.639, 0.804) * 2;
         // vec3 third = vec3(0.96, 0.85, 0.882) * 2;
 
-        // frag_color = vec4(((vec3(1.0, .4, 0.6) * normal.x) + (vec3(.3, .1, 0.8) * normal.y)), 1.0);
+        frag_color = vec4(((vec3(1.0, .4, 0.6) * normal.x) + (vec3(.3, .1, 0.8) * normal.y)), 1.0);
     }
 }
