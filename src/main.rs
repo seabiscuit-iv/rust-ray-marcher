@@ -1,5 +1,5 @@
 
-use std::{default, ops::RangeInclusive, sync::{Arc, Mutex}};
+use std::{default, ops::RangeInclusive, sync::{Arc, Mutex}, time::Instant};
 
 use mesh::Mesh;
 use tobj;
@@ -43,7 +43,8 @@ struct App {
     value: f32,
     angle: (f32, f32, f32),
     speed: f32,
-    sphere_pos: Vector3<f32>
+    sphere_pos: Vector3<f32>,
+    start_time: Instant
 }
 
 impl eframe::App for App {
@@ -175,7 +176,8 @@ impl App {
             value: 0.0,
             angle: (0.0, 0.0, 0.0),
             speed: 1.0,
-            sphere_pos: Vector3::new(0.0, 0.0, 0.0)
+            sphere_pos: Vector3::new(0.0, 0.0, 0.0),
+            start_time: Instant::now()
         }
     }
 
@@ -184,6 +186,8 @@ impl App {
             ui.allocate_exact_size(egui::vec2(ui.available_width(), ui.available_height()/2.0) , egui::Sense::drag());
 
         self.camera.lock().unwrap().aspect_ratio = ui.available_width() / ui.available_height();
+
+        let elapsed = self.start_time.elapsed();
 
 
         let shader_program = self.shader_program.clone();
@@ -196,6 +200,7 @@ impl App {
         let value = self.value;
 
         let sphere_pos = self.sphere_pos;
+        let time = self.start_time.elapsed().as_secs_f32() / 4.0 + 6.0;
 
         let callback = egui::PaintCallback {
             rect,
@@ -204,6 +209,11 @@ impl App {
                     unsafe {
                         gl.uniform_3_f32(
                             gl.get_uniform_location(program, "u_SpherePos").as_ref(), sphere_pos.x, sphere_pos.y, sphere_pos.z
+                        );
+
+                        gl.uniform_1_f32(
+                            gl.get_uniform_location(program, "u_Time").as_ref(),
+                            time
                         );
                     }
                 });

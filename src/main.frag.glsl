@@ -9,6 +9,8 @@ uniform vec3 u_CamPos;
 
 uniform vec3 u_SpherePos;
 
+uniform float u_Time;
+
 out vec4 frag_color;
 
 struct Ray {
@@ -57,7 +59,8 @@ vec3 cart2polar(vec3 cart) {
 
 float mandelbulb(vec3 c) {
     int iterations = 20;
-    float power = 8.0;
+    // float power = 8.0;
+    float power = u_Time;
     float dr = 1.0;
     float r = 0.0;
 
@@ -161,7 +164,7 @@ void main() {
 
     vec3 hitPos;
 
-    while(t < 100.0) {
+    while(t < 500.0) {
         // float sphereHit = sdSphere(getRayPos(ray, t) - u_SpherePos, 20);
         // float boxHit = sdBox(getRayPos(ray, t), vec3(25));
         // float hitDist = smin(sphereHit, boxHit, 2.0);
@@ -183,13 +186,13 @@ void main() {
         //max(0.3, 1-(t/10.0))*
         // float lightVal = dot(getNormal(hitPos), normalize(vec3(0, -1, -1)));
         // frag_color = (max(0.5+lightVal/2, 0.6))*(fiveColorGradient(value / 1.0));
-        // frag_color = vec4(getNormal(hitPos), 0.0);
-        vec3 normal = (getNormal(hitPos) + 1) * 0.5;
+        frag_color = vec4(getNormal(hitPos), 0.0);
+        // vec3 normal = (getNormal(hitPos) + 1) * 0.5;
 
         // vec3 first = vec3(0.66, 0.87, 0.886) * 2;
         // vec3 second = vec3(0.815, 0.639, 0.804) * 2;
         // vec3 third = vec3(0.96, 0.85, 0.882) * 2;
 
-        frag_color = vec4(((vec3(1.0, .4, 0.6) * normal.x) + (vec3(.3, .1, 0.8) * normal.y)), 1.0);
+        // frag_color = vec4(((vec3(1.0, .4, 0.6) * normal.x) + (vec3(.3, .1, 0.8) * normal.y)), 1.0);
     }
 }
