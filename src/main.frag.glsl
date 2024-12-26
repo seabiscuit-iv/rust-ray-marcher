@@ -6,10 +6,7 @@ in vec2 fs_uv;
 uniform mat4 u_ViewProj;
 uniform mat4 u_InvViewProj;
 uniform vec3 u_CamPos;
-
-uniform vec3 u_SpherePos;
-
-uniform float u_Time;
+uniform float u_Exp;
 
 out vec4 frag_color;
 
@@ -58,7 +55,7 @@ vec3 cart2polar(vec3 cart) {
 
 
 float mandelbulb(vec3 pos) {
-    float power = 2 * sin(u_Time / 4.0) + 7.0;
+    float power = u_Exp;
     // float power = 8.0;
     vec3 z = pos;
     float dr = 1.0;

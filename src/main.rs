@@ -45,7 +45,8 @@ struct App {
     speed: f32,
     sphere_pos: Vector3<f32>,
     start_time: Instant,
-    animating: bool
+    animating: bool,
+    exp: f32
 }
 
 impl eframe::App for App {
@@ -87,10 +88,17 @@ impl eframe::App for App {
                         ui.add(egui::Slider::new(&mut self.speed, RangeInclusive::new(0.0, 20.0)));
                     });
                 });
+                ui.checkbox(&mut self.animating, "Animate");
+                // if !self.animating {
+                ui.horizontal(|ui| {
+                    ui.label("Exp");
+                    ui.add_enabled(!self.animating, egui::Slider::new(&mut self.exp, RangeInclusive::new(0.0, 40.0)));
+                });
+                // }
             });
 
         egui::CentralPanel::default().show(ctx, |ui| {
-            egui::Frame::canvas(ui.style()).show(ui, |ui| {
+           egui::Frame::canvas(ui.style()).show(ui, |ui| {
                 self.custom_painting(ui);
             });
         });
@@ -184,7 +192,8 @@ impl App {
             speed: 1.0,
             sphere_pos: Vector3::new(0.0, 0.0, 0.0),
             start_time: Instant::now(),
-            animating: true
+            animating: true,
+            exp: 8.0
         }
     }
 
@@ -210,20 +219,20 @@ impl App {
         let value = self.value;
 
         let sphere_pos = self.sphere_pos;
-        let time = self.start_time.elapsed().as_secs_f32() / 4.00 + 0.0;
+        if self.animating {
+            self.exp = (2.0 * ((self.start_time.elapsed().as_secs_f32() / 8.0).sin())) + 7.0;
+        }
+
+        let exp = self.exp;
 
         let callback = egui::PaintCallback {
             rect,
             callback: std::sync::Arc::new(egui_glow::CallbackFn::new(move |_info, painter| {
                 shader_program.lock().unwrap().paint(painter.gl(), &mesh.lock().unwrap(), &camera.lock().unwrap(), |gl, program| {
                     unsafe {
-                        gl.uniform_3_f32(
-                            gl.get_uniform_location(program, "u_SpherePos").as_ref(), sphere_pos.x, sphere_pos.y, sphere_pos.z
-                        );
-
                         gl.uniform_1_f32(
-                            gl.get_uniform_location(program, "u_Time").as_ref(),
-                            time
+                            gl.get_uniform_location(program, "u_Exp").as_ref(),
+                            exp
                         );
                     }
                 });
