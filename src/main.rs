@@ -58,37 +58,49 @@ impl eframe::App for App {
             })
             .show(ctx, |_| ());
 
+        
+
+        egui::TopBottomPanel::bottom("Bottom Panel")
+            .frame(egui::Frame { inner_margin: 
+                Margin { 
+                    left: (10.0), right: (10.0), top: (8.0), bottom: (8.0) 
+                }, 
+                ..egui::Frame::default()
+            })
+            .show(ctx, |ui|  {
+                ui.collapsing("Camera Controls", |ui| {
+                    ui.label("Position");
+                    ui.horizontal(|ui| {
+                        ui.add(egui::DragValue::new(&mut self.camera.lock().unwrap().pos.x));
+                        ui.add(egui::DragValue::new(&mut self.camera.lock().unwrap().pos.y));
+                        ui.add(egui::DragValue::new(&mut self.camera.lock().unwrap().pos.z));
+                    });
+                    ui.label("Rotation");
+                    ui.horizontal(|ui| {
+                        ui.add(egui::DragValue::new(&mut self.angle.0));
+                        ui.add(egui::DragValue::new(&mut self.angle.1));
+                        ui.add(egui::DragValue::new(&mut self.angle.2));
+                    });
+                    ui.label("Speed");
+                    ui.horizontal(|ui| {
+                        ui.add(egui::Slider::new(&mut self.speed, RangeInclusive::new(0.0, 20.0)));
+                    });
+                });
+
+                ui.label("Sphere Position");
+                ui.horizontal(|ui| {
+                    ui.add(egui::DragValue::new(&mut self.sphere_pos.x));
+                    ui.add(egui::DragValue::new(&mut self.sphere_pos.y));
+                    ui.add(egui::DragValue::new(&mut self.sphere_pos.z));
+                });
+            });
+
         egui::CentralPanel::default().show(ctx, |ui| {
             egui::Frame::canvas(ui.style()).show(ui, |ui| {
                 self.custom_painting(ui);
             });
-
-            ui.collapsing("Camera Controls", |ui| {
-                ui.label("Position");
-                ui.horizontal(|ui| {
-                    ui.add(egui::DragValue::new(&mut self.camera.lock().unwrap().pos.x));
-                    ui.add(egui::DragValue::new(&mut self.camera.lock().unwrap().pos.y));
-                    ui.add(egui::DragValue::new(&mut self.camera.lock().unwrap().pos.z));
-                });
-                ui.label("Rotation");
-                ui.horizontal(|ui| {
-                    ui.add(egui::DragValue::new(&mut self.angle.0));
-                    ui.add(egui::DragValue::new(&mut self.angle.1));
-                    ui.add(egui::DragValue::new(&mut self.angle.2));
-                });
-                ui.label("Speed");
-                ui.horizontal(|ui| {
-                    ui.add(egui::Slider::new(&mut self.speed, RangeInclusive::new(0.0, 20.0)));
-                });
-            });
-
-            ui.label("Sphere Position");
-            ui.horizontal(|ui| {
-                ui.add(egui::DragValue::new(&mut self.sphere_pos.x));
-                ui.add(egui::DragValue::new(&mut self.sphere_pos.y));
-                ui.add(egui::DragValue::new(&mut self.sphere_pos.z));
-            });
         });
+
 
         // update logic
         let rot = nalgebra::Rotation3::from_euler_angles(
@@ -182,10 +194,13 @@ impl App {
     }
 
     fn custom_painting(&mut self, ui : &mut egui::Ui) {
-        let (rect, response) =
-            ui.allocate_exact_size(egui::vec2(ui.available_width(), ui.available_height()/2.0) , egui::Sense::drag());
+        let w = ui.available_width();
+        let h = ui.available_height();
 
-        self.camera.lock().unwrap().aspect_ratio = ui.available_width() / ui.available_height();
+        let (rect, response) =
+            ui.allocate_exact_size(egui::vec2(w, h) , egui::Sense::drag());
+
+        self.camera.lock().unwrap().aspect_ratio = w/h;
 
         let elapsed = self.start_time.elapsed();
 
