@@ -44,7 +44,8 @@ struct App {
     angle: (f32, f32, f32),
     speed: f32,
     sphere_pos: Vector3<f32>,
-    start_time: Instant
+    start_time: Instant,
+    animating: bool
 }
 
 impl eframe::App for App {
@@ -85,13 +86,6 @@ impl eframe::App for App {
                     ui.horizontal(|ui| {
                         ui.add(egui::Slider::new(&mut self.speed, RangeInclusive::new(0.0, 20.0)));
                     });
-                });
-
-                ui.label("Sphere Position");
-                ui.horizontal(|ui| {
-                    ui.add(egui::DragValue::new(&mut self.sphere_pos.x));
-                    ui.add(egui::DragValue::new(&mut self.sphere_pos.y));
-                    ui.add(egui::DragValue::new(&mut self.sphere_pos.z));
                 });
             });
 
@@ -189,7 +183,8 @@ impl App {
             angle: (0.0, 0.0, 0.0),
             speed: 1.0,
             sphere_pos: Vector3::new(0.0, 0.0, 0.0),
-            start_time: Instant::now()
+            start_time: Instant::now(),
+            animating: true
         }
     }
 
