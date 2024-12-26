@@ -58,12 +58,13 @@ vec3 cart2polar(vec3 cart) {
 
 
 float mandelbulb(vec3 pos) {
-    float power = 2 * sin(u_Time) + 7.0;
+    float power = 2 * sin(u_Time / 4.0) + 7.0;
+    // float power = 8.0;
     vec3 z = pos;
     float dr = 1.0;
     float r = 0.0;
 
-    for (int i = 0; i < 8; i++) {
+    for (int i = 0; i < 10; i++) {
         r = length(z);
         if (r > 100.0) break;
 
@@ -181,12 +182,18 @@ void main() {
         // float lightVal = dot(getNormal(hitPos), normalize(vec3(0, -1, -1)));
         // frag_color = (max(0.5+lightVal/2, 0.6))*(fiveColorGradient(value / 1.0));
         // frag_color = vec4(getNormal(hitPos), 0.0);
-        vec3 normal = (getNormal(hitPos) + 1) * 0.5;
+        vec3 normal = getNormal(hitPos);
 
         // vec3 first = vec3(0.66, 0.87, 0.886) * 2;
         // vec3 second = vec3(0.815, 0.639, 0.804) * 2;
         // vec3 third = vec3(0.96, 0.85, 0.882) * 2;
 
-        frag_color = vec4(((vec3(1.0, .4, 0.6) * normal.x) + (vec3(.3, .1, 0.8) * normal.y)), 1.0);
+        float lighting = dot(normalize(normal), vec3(0, 1, 0));
+        lighting = (lighting + 1) / 2;
+
+        lighting = lighting * 0.2 + 0.8;
+
+        frag_color = vec4(lighting * ((vec3(1.0, .4, 0.6) * normal.x) + (vec3(.3, .1, 0.8) * normal.y) + (vec3(.3, .1, 0.8) * normal.z)), 1.0);
+        // frag_color = vec4(vec3(lighting), 1.0);
     }
 }
