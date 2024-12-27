@@ -27,7 +27,7 @@ fn main() -> eframe::Result{
         ..Default::default()
     };
     eframe::run_native(
-        "MeshView",
+        "Raymarcher",
         options,
         Box::new(|cc| Ok(Box::new(App::new(cc)))),
     )
@@ -92,7 +92,7 @@ impl eframe::App for App {
                 // if !self.animating {
                 ui.horizontal(|ui| {
                     ui.label("Exp");
-                    ui.add_enabled(!self.animating, egui::Slider::new(&mut self.exp, RangeInclusive::new(0.0, 40.0)));
+                    ui.add_enabled(!self.animating, egui::Slider::new(&mut self.exp, RangeInclusive::new(0.0, 30.0)));
                 });
                 // }
             });
@@ -195,7 +195,8 @@ impl App {
             animating: true,
             exp: 8.0
         }
-    }
+    }   
+
 
     fn custom_painting(&mut self, ui : &mut egui::Ui) {
         let w = ui.available_width();
@@ -220,7 +221,7 @@ impl App {
 
         let sphere_pos = self.sphere_pos;
         if self.animating {
-            self.exp = (2.0 * ((self.start_time.elapsed().as_secs_f32() / 8.0).sin())) + 7.0;
+            self.exp = 10.0 * ((self.start_time.elapsed().as_secs_f32() / 8.0).sin() + 1.0);
         }
 
         let exp = self.exp;
