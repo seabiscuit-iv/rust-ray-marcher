@@ -1,16 +1,13 @@
 // pub mod Shader {
-    use eframe::glow::{self, Context, HasContext, Shader};
-    use egui::Vec2;
-    use nalgebra::{Vector2, Vector3, Vector4};
-    use rand;
+    use eframe::glow::{self, Context};
 
     use crate::{camera::Camera, mesh::Mesh};
 
     
     pub struct ShaderProgram {
         pub program : glow::Program,
-        vert_shader: glow::Shader,
-        frag_shader: glow::Shader
+        _vert_shader: glow::Shader,
+        _frag_shader: glow::Shader
     }
 
 
@@ -65,14 +62,14 @@
 
                 Self {
                     program,
-                    vert_shader: shaders[0],
-                    frag_shader: shaders[1]
+                    _vert_shader: shaders[0],
+                    _frag_shader: shaders[1]
                 }
             }
         }
 
 
-        pub fn destroy(&self, gl: &glow::Context) {
+        pub fn _destroy(&self, gl: &glow::Context) {
             use glow::HasContext as _;
             unsafe {
                 gl.delete_program(self.program);

@@ -24,13 +24,13 @@ impl Mesh {
         use glow::HasContext as _;
 
         unsafe {
-            let vert_count = positions.len();
+            let _vert_count = positions.len();
 
-            let mut uvs = uvs.clone();
+            let uvs = uvs.clone();
             
             let mut colors: Vec<Vector4<f32>> = Vec::new();
 
-            for (i, pos) in positions.iter().enumerate() {
+            for (i, _pos) in positions.iter().enumerate() {
                 let i = i as f32;
 
                 if i as i32 % 3 == 0 {
@@ -124,7 +124,7 @@ impl Mesh {
         }
     }
 
-    pub fn destroy(&self, gl: &glow::Context) {
+    pub fn _destroy(&self, gl: &glow::Context) {
         use glow::HasContext as _;
         unsafe {
             gl.delete_buffer(self.position_buffer);

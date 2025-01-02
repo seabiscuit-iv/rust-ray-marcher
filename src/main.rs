@@ -1,12 +1,11 @@
 
-use std::{default, ops::RangeInclusive, sync::{Arc, Mutex}, time::Instant};
+use std::{ops::RangeInclusive, sync::{Arc, Mutex}, time::Instant};
 
 use mesh::Mesh;
-use tobj;
 
 use camera::Camera;
-use eframe::{egui, egui_glow, glow::{self, HasContext, RIGHT}};
-use egui::{mutex, Margin, Style};
+use eframe::{egui, egui_glow, glow::HasContext};
+use egui::Margin;
 use nalgebra::{Vector2, Vector3};
 
 mod shader;
@@ -207,7 +206,7 @@ impl App {
 
         self.camera.lock().unwrap().aspect_ratio = w/h;
 
-        let elapsed = self.start_time.elapsed();
+        let _elapsed = self.start_time.elapsed();
 
 
         let shader_program = self.shader_program.clone();
@@ -217,9 +216,9 @@ impl App {
         self.angle.0 += response.drag_motion().y * -0.1;
         self.angle.1 += response.drag_motion().x * -0.1;
 
-        let value = self.value;
+        let _value = self.value;
 
-        let sphere_pos = self.sphere_pos;
+        let _sphere_pos = self.sphere_pos;
         if self.animating {
             self.exp = 10.0 * ((self.start_time.elapsed().as_secs_f32() / 8.0).sin() + 1.0);
         }
