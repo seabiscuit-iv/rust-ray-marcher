@@ -54,14 +54,17 @@ vec3 cart2polar(vec3 cart) {
 }
 
 
-float mandelbulb(vec3 pos) {
+float mandelbulb(vec3 pos, out float orbit_trap_dist) {
     float power = u_Exp;
+    float sphere_rad = 0.5;
     // float power = 8.0;
     vec3 z = pos;
     float dr = 1.0;
     float r = 0.0;
 
-    for (int i = 0; i < 10; i++) {
+    orbit_trap_dist = 1000000.0;
+
+    for (int i = 0; i < 12; i++) {
         r = length(z);
         if (r > 2.0) break;
 
@@ -78,7 +81,11 @@ float mandelbulb(vec3 pos) {
         // Convert back to cartesian coordinates
         z = zr * vec3(sin(theta) * cos(phi), sin(theta) * sin(phi), cos(theta));
         z += pos;
+
+        float dist = sdSphere(z, sphere_rad);
+        orbit_trap_dist = min(orbit_trap_dist, dist);
     }
+
     return 0.5 * log(r) * r / dr;
 }
 
@@ -112,12 +119,13 @@ vec4 fiveColorGradient(float t) {
 
 vec3 getNormal(vec3 p) {
     //d is distance of the active ray
-    float d = mandelbulb(p);
+    float tmp;
+    float d = mandelbulb(p, tmp);
     vec2 e = vec2(0.001, 0);
     vec3 n = d - vec3(
-        mandelbulb(p - e.xyy),
-        mandelbulb(p - e.yxy),
-        mandelbulb(p - e.yyx)
+        mandelbulb(p - e.xyy, tmp),
+        mandelbulb(p - e.yxy, tmp),
+        mandelbulb(p - e.yyx, tmp)
     );
 
     return normalize(n);
@@ -147,6 +155,8 @@ void main() {
 
     bool hit = false;
     float dist = 0;
+    float orbit_trap;
+ 
 
     const vec3 sphereCol = vec3(1, 0.2, 0.7);
     const vec3 boxCol = vec3(0.1, 1.0, 0.2);
@@ -160,9 +170,9 @@ void main() {
         // float sphereHit = sdSphere(getRayPos(ray, t) - u_SpherePos, 20);
         // float boxHit = sdBox(getRayPos(ray, t), vec3(25));
         // float hitDist = smin(sphereHit, boxHit, 2.0);
-        float hitDist = mandelbulb(getRayPos(ray, t));
-
-        if (hitDist < 0.0004) {
+        float hitDist = mandelbulb(getRayPos(ray, t), orbit_trap);
+        
+        if (hitDist < 0.0001) {
             hit = true;
             dist = t;
             hitPos = getRayPos(ray, t);
@@ -190,11 +200,14 @@ void main() {
         float lighting = dot(normalize(normal), vec3(0, 1, 0));
         lighting = (lighting + 1) / 2;
 
-        lighting = lighting * 0.6  + 0.4;
+        // lighting = lighting * 0.6  + 0.4;
+        lighting = orbit_trap;
+        lighting = clamp(lighting, 0, 1);
         // lighting = 1.0;
 
         // frag_color = vec4(normal, 1.0);
         frag_color = vec4(lighting * ((vec3(1.0, .4, 0.6) * normal.x) + (vec3(.3, .1, 0.8) * normal.y) + (vec3(.9, .6, .6) * normal.z)), 1.0);
+        // frag_color = vec4(vec3(lighting), 1.0);
         // frag_color = vec4(vec3(lighting), 1.0);
     }
 }
