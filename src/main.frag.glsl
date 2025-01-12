@@ -57,6 +57,7 @@ vec3 cart2polar(vec3 cart) {
 float mandelbulb(vec3 pos, out float orbit_trap_dist) {
     float power = u_Exp;
     float sphere_rad = 0.5;
+    // float sphere_rad = u_Exp;
     // float power = 8.0;
     vec3 z = pos;
     float dr = 1.0;
@@ -90,31 +91,16 @@ float mandelbulb(vec3 pos, out float orbit_trap_dist) {
 }
 
 
-vec4 fiveColorGradient(float t) {
-    // Clamp t to the range [0.0, 1.0]
+vec3 gradient(float t) {
     t = clamp(t, 0.0, 1.0);
 
-    vec4 color1 = vec4(0.4, 0.0, 0.1, 1.0);
-    vec4 color2 = vec4(0.5, 0.0, 0.1, 1.0);
-    vec4 color3 = vec4(0.6, 0.0, 0.3, 1.0);
-    vec4 color4 = vec4(0.8, 0.0, 0.4, 1.0);
-    vec4 color5 = vec4(0.8, 0.0, 0.6, 1.0);
+    vec3 darkBlue = vec3(0.0, 0.0, 0.1);  // Extremely dark blue
+    vec3 softPink = vec3(0.8, 0.5, 0.6);  // Not super light pink
 
-    // Determine which segment of the gradient t falls into
-    if (t < 0.25) {
-        float localT = t / 0.25; // Map t from [0.0, 0.25] to [0.0, 1.0]
-        return mix(color1, color2, localT);
-    } else if (t < 0.5) {
-        float localT = (t - 0.25) / 0.25; // Map t from [0.25, 0.5] to [0.0, 1.0]
-        return mix(color2, color3, localT);
-    } else if (t < 0.75) {
-        float localT = (t - 0.5) / 0.25; // Map t from [0.5, 0.75] to [0.0, 1.0]
-        return mix(color3, color4, localT);
-    } else {
-        float localT = (t - 0.75) / 0.25; // Map t from [0.75, 1.0] to [0.0, 1.0]
-        return mix(color4, color5, localT);
-    }
+    return mix(darkBlue, softPink, t);
 }
+
+
 
 
 vec3 getNormal(vec3 p) {
@@ -183,7 +169,7 @@ void main() {
     }
 
     if(!hit) {  
-        frag_color = vec4(0, 0, 0, 0);
+        frag_color = vec4(0.1, 0.15, 0.25, 1.0);
     } else {
         //max(0.3, 1-(t/10.0))*
         // float lightVal = dot(getNormal(hitPos), normalize(vec3(0, -1, -1)));
@@ -206,7 +192,9 @@ void main() {
         // lighting = 1.0;
 
         // frag_color = vec4(normal, 1.0);
+        // frag_color = vec4(lighting * ((vec3(1.0, .4, 0.6) * normal.x) + (vec3(.3, .1, 0.8) * normal.y) + (vec3(.9, .6, .6) * normal.z)), 1.0);
         frag_color = vec4(lighting * ((vec3(1.0, .4, 0.6) * normal.x) + (vec3(.3, .1, 0.8) * normal.y) + (vec3(.9, .6, .6) * normal.z)), 1.0);
+        // frag_color = vec4(lighting * vec3(1.0, .71, 0.8), 1.0);
         // frag_color = vec4(vec3(lighting), 1.0);
         // frag_color = vec4(vec3(lighting), 1.0);
     }
