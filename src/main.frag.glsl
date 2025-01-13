@@ -7,6 +7,8 @@ uniform mat4 u_ViewProj;
 uniform mat4 u_InvViewProj;
 uniform vec3 u_CamPos;
 uniform float u_Exp;
+uniform uint u_Iters;
+uniform int u_Detail;
 
 out vec4 frag_color;
 
@@ -65,7 +67,9 @@ float mandelbulb(vec3 pos, out float orbit_trap_dist) {
 
     orbit_trap_dist = 1000000.0;
 
-    for (int i = 0; i < 12; i++) {
+    int num_iters = int(u_Iters);
+
+    for (int i = 0; i < num_iters; i++) {
         r = length(z);
         if (r > 2.0) break;
 
@@ -158,7 +162,9 @@ void main() {
         // float hitDist = smin(sphereHit, boxHit, 2.0);
         float hitDist = mandelbulb(getRayPos(ray, t), orbit_trap);
         
-        if (hitDist < 0.0001) {
+        float hit_delta = float(1) / float(10000 * u_Detail);
+
+        if (hitDist < hit_delta) {
             hit = true;
             dist = t;
             hitPos = getRayPos(ray, t);

@@ -1,11 +1,11 @@
 
-use std::{ops::RangeInclusive, sync::{Arc, Mutex}, time::Instant};
+use std::{collections::btree_map::Range, iter, ops::RangeInclusive, sync::{Arc, Mutex}, time::Instant};
 
 use mesh::Mesh;
 
 use camera::Camera;
 use eframe::{egui, egui_glow, glow::HasContext};
-use egui::Margin;
+use egui::{DragValue, Margin};
 use nalgebra::{Vector2, Vector3};
 
 mod shader;
@@ -45,7 +45,9 @@ struct App {
     sphere_pos: Vector3<f32>,
     start_time: Instant,
     animating: bool,
-    exp: f32
+    exp: f32,
+    num_iters: u32,
+    detail: i32,
 }
 
 impl eframe::App for App {
@@ -86,6 +88,7 @@ impl eframe::App for App {
                     ui.horizontal(|ui| {
                         ui.add(egui::Slider::new(&mut self.speed, RangeInclusive::new(0.0, 20.0)));
                     });
+
                 });
                 ui.checkbox(&mut self.animating, "Animate");
                 // if !self.animating {
@@ -93,6 +96,35 @@ impl eframe::App for App {
                     ui.label("Exp");
                     ui.add_enabled(!self.animating, egui::Slider::new(&mut self.exp, RangeInclusive::new(0.0, 30.0)));
                 });
+
+                ui.horizontal(|ui| {
+                    ui.label("Iterations");
+
+                    if ui.button("-").clicked() {
+                        self.num_iters -= 1;
+                    }
+
+                    ui.add(DragValue::new(&mut self.num_iters).range(RangeInclusive::new(1, 40)));
+
+                    if ui.button("+").clicked() {
+                        self.num_iters += 1;
+                    }
+                });
+
+                ui.horizontal(|ui| {
+                    ui.label("Detail");
+
+                    if ui.button("-").clicked() {
+                        self.detail -= 1;
+                    }
+
+                    ui.add(DragValue::new(&mut self.detail).range(RangeInclusive::new(1, 100)));
+
+                    if ui.button("+").clicked() {
+                        self.detail += 1;
+                    }
+                });
+
                 // }
             });
 
@@ -112,39 +144,44 @@ impl eframe::App for App {
 
         // MOVEMENT HANDLER 
         {
+            let speed = 
+                if ctx.input(|i| i.modifiers.shift) {self.speed * 2.0} 
+                else if ctx.input(|i| i.modifiers.ctrl) {self.speed * 0.2}
+                else {self.speed};
+
             if ctx.input(|i| i.key_down(egui::Key::W)) {
                 let mut cam = self.camera.lock().unwrap();
                 let look = cam.look;
-                cam.pos += look * 0.01 * self.speed;
+                cam.pos += look * 0.01 * speed;
             }
             if ctx.input(|i| i.key_down(egui::Key::S)) {
                 let mut cam = self.camera.lock().unwrap();
                 let look = cam.look;
-                cam.pos += look * -0.01 * self.speed;
+                cam.pos += look * -0.01 * speed;
             }
     
             if ctx.input(|i| i.key_down(egui::Key::A)) {
                 let mut cam = self.camera.lock().unwrap();
                 let right = cam.right;
-                cam.pos += right * -0.01 * self.speed;
+                cam.pos += right * -0.01 * speed;
             }
     
             if ctx.input(|i| i.key_down(egui::Key::D)) {
                 let mut cam = self.camera.lock().unwrap();
                 let right = cam.right;
-                cam.pos += right * 0.01 * self.speed;
+                cam.pos += right * 0.01 * speed;
             }
     
             if ctx.input(|i| i.key_down(egui::Key::Q)) {
                 let mut cam = self.camera.lock().unwrap();
                 let up = cam.get_up_vec() ;
-                cam.pos += up * -0.01 * self.speed;
+                cam.pos += up * -0.01 * speed;
             }
             
             if ctx.input(|i| i.key_down(egui::Key::E)) {
                 let mut cam = self.camera.lock().unwrap();
                 let up = cam.get_up_vec() ;
-                cam.pos += up * 0.01 * self.speed;
+                cam.pos += up * 0.01 * speed;
             }
     
         }
@@ -192,7 +229,9 @@ impl App {
             sphere_pos: Vector3::new(0.0, 0.0, 0.0),
             start_time: Instant::now(),
             animating: true,
-            exp: 8.0
+            exp: 8.0,
+            num_iters: 12,
+            detail: 1
         }
     }   
 
@@ -223,7 +262,10 @@ impl App {
             self.exp = 10.0 * ((self.start_time.elapsed().as_secs_f32() / 8.0).sin() + 1.0);
         }
 
+        let iters = self.num_iters;
+
         let exp = self.exp;
+        let detail = self.detail;
 
         let callback = egui::PaintCallback {
             rect,
@@ -233,6 +275,16 @@ impl App {
                         gl.uniform_1_f32(
                             gl.get_uniform_location(program, "u_Exp").as_ref(),
                             exp
+                        );
+
+                        gl.uniform_1_u32(
+                            gl.get_uniform_location(program, "u_Iters").as_ref(),
+                            iters
+                        );
+
+                        gl.uniform_1_i32(
+                            gl.get_uniform_location(program, "u_Detail").as_ref(),
+                            detail
                         );
                     }
                 });
