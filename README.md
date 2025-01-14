@@ -2,7 +2,7 @@
 
 A Rust OpenGL raymarcher built on top of meshview. Made with Rust egui and glow. 
 
-![Mandelbrot Fractal](./img/fractal_img_1.png.png)
+![Mandelbrot Fractal](./img/fractal_img_1.png)
 
 Controls to adjust the camera position, look vector, and speed. Animation toggle that interpolates the Mandelbrot exponent from 0.0 through 20.0. When disabled, the exponent can also be controlled throguh the `exp` slider. For best results, use an exp of 6.0 through 8.0.
 
