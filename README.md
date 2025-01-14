@@ -2,7 +2,7 @@
 
 A Rust OpenGL raymarcher built on top of meshview. Made with Rust egui and glow. 
 
-![Mandelbrot Fractal](img\Mandelbrot Fractal.png "Mandelbrot Fractal")
+![Mandelbrot Fractal](./img/mandelbrot_fractal.png)
 
 The raymarching logic is done in `main.frag.glsl`. Camera matrices and controls are handled in `camera.rs`. OpenGL API interactions are done in `main.rs`
 
