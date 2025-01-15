@@ -11,3 +11,8 @@ nalgebra = "0.33.2"
 rand = "0.8.5"
 rfd = "0.15.1"
 tobj = "4.0.2"
+
+[[bin]]
+name = "your_app"
+path = "src/main.rs"
+windows_subsystem = "windows"

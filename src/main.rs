@@ -1,3 +1,4 @@
+#![windows_subsystem = "windows"]
 
 use std::{collections::btree_map::Range, iter, ops::RangeInclusive, sync::{Arc, Mutex}, time::Instant};
 
