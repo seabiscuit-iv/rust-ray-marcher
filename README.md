@@ -1,5 +1,7 @@
 ## Rust Raymarcher
 
+[Web Demo](https://mandel.saahil-gupta.com/)
+
 A Rust OpenGL raymarcher built on top of meshview. Made with Rust egui and glow. 
 
 ![Mandelbrot Fractal](./img/fractal_img_1.png)
