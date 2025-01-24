@@ -1,4 +1,7 @@
-#version 330 core
+#version 300 es
+
+precision mediump float;
+
 
 in vec4 fs_col;
 in vec2 fs_uv;
@@ -121,7 +124,20 @@ vec3 getNormal(vec3 p) {
     return normalize(n);
 }
 
+float rand(vec2 n) { 
+	return fract(sin(dot(n, vec2(12.9898, 4.1414))) * 43758.5453);
+}
 
+float noise(vec2 p){
+	vec2 ip = floor(p);
+	vec2 u = fract(p);
+	u = u*u*(3.0-2.0*u);
+	
+	float res = mix(
+		mix(rand(ip),rand(ip+vec2(1.0,0.0)),u.x),
+		mix(rand(ip+vec2(0.0,1.0)),rand(ip+vec2(1.0,1.0)),u.x),u.y);
+	return res*res;
+}
 
 
 void main() {
@@ -141,10 +157,10 @@ void main() {
     ray.direction = dir;
     ray.origin = u_CamPos;
 
-    float t = 0;
+    float t = 0.0;
 
     bool hit = false;
-    float dist = 0;
+    float dist = 0.0;
     float orbit_trap;
  
 
@@ -175,14 +191,15 @@ void main() {
     }
 
     if(!hit) {  
-        frag_color = vec4(0.1, 0.15, 0.25, 1.0);
+        float noise = noise(fs_uv);
+        frag_color = mix(vec4(0.1, 0.15, 0.25, 1.0), vec4(0.1, 0.15, 0.25, 1.0), noise);
     } else {
         //max(0.3, 1-(t/10.0))*
         // float lightVal = dot(getNormal(hitPos), normalize(vec3(0, -1, -1)));
         // frag_color = (max(0.5+lightVal/2, 0.6))*(fiveColorGradient(value / 1.0));
         // frag_color = vec4(getNormal(hitPos), 0.0);
         vec3 normal = getNormal(hitPos);
-        normal = (normal + 0.8) / 2;
+        normal = (normal + 0.8) / 2.0;
         // normal = abs(normal);
 
         // vec3 first = vec3(0.66, 0.87, 0.886) * 2;
@@ -190,11 +207,11 @@ void main() {
         // vec3 third = vec3(0.96, 0.85, 0.882) * 2;
 
         float lighting = dot(normalize(normal), vec3(0, 1, 0));
-        lighting = (lighting + 1) / 2;
+        lighting = (lighting + 1.0) / 2.0;
 
         // lighting = lighting * 0.6  + 0.4;
         lighting = orbit_trap;
-        lighting = clamp(lighting, 0, 1);
+        lighting = clamp(lighting, 0.0, 1.0);
         // lighting = 1.0;
 
         // frag_color = vec4(normal, 1.0);

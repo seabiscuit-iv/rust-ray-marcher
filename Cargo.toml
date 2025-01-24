@@ -5,14 +5,29 @@ edition = "2021"
 
 [dependencies]
 bytemuck = "1.20.0"
-eframe = "0.29.1"
+eframe = { version = "0.30", default-features = false, features = [
+    "accesskit",     # Make egui compatible with screen readers. NOTE: adds a lot of dependencies.
+    "default_fonts", # Embed the default egui fonts.
+    "glow",          # Use the glow rendering backend. Alternative: "wgpu".
+    "persistence",   # Enable restoring app state when restarting the app.
+    "wayland",       # To support Linux (and CI)
+] }
 egui = "0.29.1"
+getrandom ={ version = "0.2.15", features = ["js"] }
+log = "0.4.25"
 nalgebra = "0.33.2"
 rand = "0.8.5"
 rfd = "0.15.1"
 tobj = "4.0.2"
+web-time = "1.1.0"
 
 [[bin]]
 name = "your_app"
 path = "src/main.rs"
 windows_subsystem = "windows"
+
+
+# web:
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+wasm-bindgen-futures = "0.4"
+web-sys = "0.3.70"           # to access the DOM (to hide the loading text)

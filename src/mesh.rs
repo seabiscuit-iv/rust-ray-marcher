@@ -46,7 +46,7 @@ impl Mesh {
                 }
             }
 
-            let position_buffer: glow::NativeBuffer = gl.create_buffer().expect("Cannot create position buffer");
+            let position_buffer = gl.create_buffer().expect("Cannot create position buffer");
             let color_buffer = gl.create_buffer().expect("Cannot create color buffer");
             let uv_buffer = gl.create_buffer().expect("Cannot create uv buffer");
             let index_buffer = gl.create_buffer().expect("Cannot create index buffer");
