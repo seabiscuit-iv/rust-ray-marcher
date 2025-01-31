@@ -14,8 +14,6 @@ The raymarching logic is done in `main.frag.glsl`. Camera matrices and controls 
 
 The coloring was done with normals combined with orbit traps. I may potentially add lightmapping in the near future.
 
-Check out the releases page for a Windows executable. Unfortunately this raymarcher is not optimized to run on WebGL :(
-
 ![fractal 1](./img/fractal_img_2.png)
 
 
